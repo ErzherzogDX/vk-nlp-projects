@@ -96,7 +96,9 @@ class Trainer:
         Возвращает:
             Tensor: Значение потерь.
         """
-        return <YOUR CODE HERE>
+        logits_flat = logits.view(-1, logits.size(-1))
+        y_flat = y.view(-1)
+        return self.loss_func(logits_flat, y_flat)
 
     def train(self) -> None:
         """
@@ -110,18 +112,19 @@ class Trainer:
                 iterations += 1
                 self.model.train()
                 # Готовим входы (текущие токены) и выходы (следующие токены)
-                x = <YOUR CODE HERE>
-                y = <YOUR CODE HERE>
+                x = ids[:, :-1]
+                y = ids[:, 1:]
                 # Получаем логиты и считаем лосс
                 logits, _ = self.model(x)
                 loss = self.calc_loss(logits, y)
                 progress_bar.update()
-                progress_bar.set_description(f'epoch={iterations / len(self.train_loader)}, loss={loss.item()}')
+                progress_bar.set_description(f'epoch={iterations / len(self.train_loader):.2f}, loss={loss.item():.4f}')
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
                 if self.eval_steps is not None and iterations % self.eval_steps == 0:
-                    print(f'epoch={iterations / len(self.train_loader)}, eval_loss={self.evaluate()}')
+                    eval_loss = self.evaluate()
+                    print(f'epoch={iterations / len(self.train_loader):.2f}, eval_loss={eval_loss:.4f}')
 
     def evaluate(self) -> float:
         """
@@ -132,13 +135,15 @@ class Trainer:
         """
         self.model.eval()
         total_loss = 0.0
-        for ids in self.eval_loader:
-            # Готовим входы (текущие номера токенов) и выходы (следующие номера токенов)
-            x = <YOUR CODE HERE>
-            y = <YOUR CODE HERE>
-            with (torch.no_grad()):
+        with torch.no_grad():
+            for ids in self.eval_loader:
+                # Готовим входы (текущие номера токенов) и выходы (следующие номера токенов)
+                x = ids[:, :-1]
+                y = ids[:, 1:]
                 # Получаем логиты и считаем лосс
                 logits, _ = self.model(x)
                 loss = self.calc_loss(logits, y)
-                total_loss += loss.item() / len(self.eval_loader)
-        return total_loss
+                total_loss += loss.item()
+        average_loss = total_loss / len(self.eval_loader)
+        return average_loss
+

@@ -320,7 +320,7 @@ class BpeTokenizer(ByteTokenizer):
         # Последовательно применяем таблицу склеиваний в том порядке, в котором добавлялись токены в словарь
         while len(ids) > 1:
             cnt = count_pairs([ids])
-            pair = max(cnt, key=lambda x: (cnt[x], x))
+            pair = max(cnt, key=cnt.get)
             if pair not in self.merges:
                 break
             idx = self.merges[pair]
