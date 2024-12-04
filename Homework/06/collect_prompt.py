@@ -8,6 +8,7 @@ def create_prompt(sample: dict) -> str:
     Returns:
         str: A formatted string prompt for the multiple choice question.
     """
+    
     subject = sample['subject']
     question = sample['question']
     choices = sample['choices']
