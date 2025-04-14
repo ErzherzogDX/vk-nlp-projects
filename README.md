@@ -1,3 +1,3 @@
-# vk-nlp-hw1
+# VK NLP course projects
 
 Решения лежат в ветке master
